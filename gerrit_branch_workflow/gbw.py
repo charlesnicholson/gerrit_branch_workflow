@@ -4,13 +4,13 @@ import sys
 
 import git
 
-from git_repository import GitRepository
-import gerrit_utils
+from . import git_repository
+from . import gerrit_utils
 
 
 def new_command(repo_path, branch_name):
     _forbid_suspicious_branch_names(branch_name)
-    repo = GitRepository(repo_path)
+    repo = git_repository.GitRepository(repo_path)
     new_branch = repo.create_local_branch(branch_name)
     try:
         repo.checkout_branch(branch_name)
@@ -28,7 +28,7 @@ def new_command(repo_path, branch_name):
 
 def rm_command(repo_path, branch_name):
     _forbid_suspicious_branch_names(branch_name)
-    repo = GitRepository(repo_path)
+    repo = git_repository.GitRepository(repo_path)
     repo.checkout_branch('master')
     repo.delete_remote_tracking_branch(branch_name)
     repo.delete_local_branch(branch_name, force=True)
@@ -36,7 +36,7 @@ def rm_command(repo_path, branch_name):
 
 
 def review_command(repo_path, ancestor_branch_name, message):
-    repo = GitRepository(repo_path)
+    repo = git_repository.GitRepository(repo_path)
     if repo.untracked_files() or repo.is_dirty():
         print('repository has untracked or uncommitted files, aborting.')
         return False
@@ -73,7 +73,7 @@ def _forbid_suspicious_branch_names(branch_name):
                 branch_name))
 
 
-def parse_args(argv):
+def parse_args():
     parser = argparse.ArgumentParser(
         description='Tool for working with Gerrit and remote branches.'
         ' Run with "{command} -h" for command-specific help.')
@@ -122,13 +122,13 @@ def parse_args(argv):
         default='',
         help='commit message to preface the gerrit review with')
 
-    return parser.parse_args(argv)
+    return parser.parse_args()
 
 
-def main(argv):
+def main():
     cwd = os.getcwd()
 
-    args = parse_args(argv)
+    args = parse_args()
     if not args.command:
         print('command required, run with "-h" for help.')
         return False
@@ -146,4 +146,4 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())
