@@ -13,11 +13,12 @@ def new_command(repo_path, branch_name):
     repo = git_repository.GitRepository(repo_path)
     new_branch = repo.create_local_branch(branch_name)
     try:
+        orig_branch_name = repo.current_branch_name()
         repo.checkout_branch(branch_name)
         try:
             repo.create_remote_tracking_branch(branch_name)
         except:
-            repo.delete_local_branch(branch_name)
+            repo.checkout_branch(orig_branch_name)
             raise
     except:
         repo.delete_local_branch(branch_name)
@@ -29,7 +30,8 @@ def new_command(repo_path, branch_name):
 def rm_command(repo_path, branch_name):
     _forbid_suspicious_branch_names(branch_name)
     repo = git_repository.GitRepository(repo_path)
-    repo.checkout_branch('master')
+    if repo.current_branch_name() == branch_name:
+        repo.checkout_branch('master')
     repo.delete_remote_tracking_branch(branch_name)
     repo.delete_local_branch(branch_name, force=True)
     return True
