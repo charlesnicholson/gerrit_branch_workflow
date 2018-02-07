@@ -7,7 +7,7 @@ def commit_message_without_change_id(commit_msg):
 
 def change_id_without_commit_message(commit_msg):
     found = re.search(r'.*?Change-Id: (.*?)\n', commit_msg)
-    if len(found.groups()) != 1:
+    if not found or len(found.groups()) != 1:
         raise ValueError('no change id present in "{}"'.format(commit_msg))
 
     return found.group(1)
